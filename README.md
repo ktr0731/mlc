@@ -23,4 +23,4 @@ $ mlc "command1" "command2"
 ```
 
 ## License
-Please see LICENSE.
+Please see [LICENSE](./LICENSE).
