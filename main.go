@@ -10,6 +10,8 @@ import (
 	"os/signal"
 	"strings"
 	"sync"
+
+	shellwords "github.com/mattn/go-shellwords"
 )
 
 func main() {
@@ -21,13 +23,21 @@ func main() {
 
 	wg := new(sync.WaitGroup)
 	cmds := make([]*exec.Cmd, len(args[1:]))
+
+	shellwords.ParseBacktick = true
+	shellwords.ParseEnv = true
+
 	for i, arg := range args[1:] {
 		wg.Add(2) // stdout and stderr
-		cmdArgs := strings.Split(arg, " ")
+
+		cmdArgs, err := shellwords.Parse(arg)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error was occurred in shellwords: %s", err)
+			return
+		}
+
 		cmds[i] = exec.Command("sh", append([]string{"-c"}, strings.Join(cmdArgs, " "))...)
 	}
-
-	// TODO: go-shellwords を使う
 
 	for _, cmd := range cmds {
 		out, err := cmd.StdoutPipe()
